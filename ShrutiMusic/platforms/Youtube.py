@@ -29,21 +29,21 @@ async def download_song(link: str) -> str:
         return file_path
 
     try:
-        loop = asyncio.get_event_loop()
-        def _dl():
-            ydl_opts = {
-                'format': 'bestaudio/best',
-                'outtmpl': file_path.replace('.mp3', '.%(ext)s'),
-                'quiet': True,
-                'no_warnings': True,
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info([f"https://www.youtube.com/watch?v={video_id}"], download=True)[0]
-                return ydl.prepare_filename(info)
-        actual_file = await loop.run_in_executor(None, _dl)
-        if os.path.exists(actual_file) and os.path.getsize(actual_file) > 0:
-            return actual_file
-        return None
+        if API_URL:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    f"{API_URL}/download",
+                    params={"url": video_id, "type": "audio", "api_key": API_KEY},
+                    timeout=aiohttp.ClientTimeout(total=600)
+                ) as resp:
+                    if resp.status != 200:
+                        return None
+                    with open(file_path, "wb") as f:
+                        async for chunk in resp.content.iter_chunked(131072):
+                            f.write(chunk)
+            if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                return file_path
+            return None
     except Exception:
         if os.path.exists(file_path):
             try:
@@ -63,17 +63,18 @@ async def download_video(link: str) -> str:
         return file_path
 
     try:
-        loop = asyncio.get_event_loop()
-        def _dl():
-            ydl_opts = {
-                'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                'outtmpl': file_path,
-                'quiet': True,
-                'no_warnings': True,
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
-        await loop.run_in_executor(None, _dl)
+        if API_URL:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    f"{API_URL}/download",
+                    params={"url": video_id, "type": "video", "api_key": API_KEY},
+                    timeout=aiohttp.ClientTimeout(total=600)
+                ) as resp:
+                    if resp.status != 200:
+                        return None
+                    with open(file_path, "wb") as f:
+                        async for chunk in resp.content.iter_chunked(131072):
+                            f.write(chunk)
         if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
             return file_path
         return None
@@ -84,6 +85,7 @@ async def download_video(link: str) -> str:
             except Exception:
                 pass
         return None
+
 
 class YouTubeAPI:
     def __init__(self):
