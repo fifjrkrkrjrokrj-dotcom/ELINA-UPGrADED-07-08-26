@@ -30,29 +30,24 @@ async def download_song(link: str) -> str:
         if os.path.getsize(f) > 0:
             return f
 
-    file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.mp3")
     try:
-        if API_URL:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    f"{API_URL}/download",
-                    params={"url": video_id, "type": "audio", "api_key": API_KEY},
-                    timeout=aiohttp.ClientTimeout(total=600)
-                ) as resp:
-                    if resp.status != 200:
-                        return None
-                    data = await resp.read()
-                    with open(file_path, "wb") as f:
-                        f.write(data)
-            if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-                return file_path
-            return None
+        loop = asyncio.get_event_loop()
+        def _dl():
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'outtmpl': os.path.join(DOWNLOAD_DIR, f"{video_id}.%(ext)s"),
+                'quiet': True,
+                'no_warnings': True,
+                'cookiefile': 'cookies.txt',
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=True)
+                return ydl.prepare_filename(info)
+        actual_file = await loop.run_in_executor(None, _dl)
+        if os.path.exists(actual_file) and os.path.getsize(actual_file) > 0:
+            return actual_file
+        return None
     except Exception:
-        if os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-            except Exception:
-                pass
         return None
 
 async def download_video(link: str) -> str:
