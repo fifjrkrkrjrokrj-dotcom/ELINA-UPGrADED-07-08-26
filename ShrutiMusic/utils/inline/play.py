@@ -95,7 +95,17 @@ def stream_markup_timer(_, chat_id, played, dur):
             styled_button(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}", style=enums.ButtonStyle.PRIMARY),
             styled_button(text="▢", callback_data=f"ADMIN Stop|{chat_id}", style=enums.ButtonStyle.PRIMARY),
         ],
-        [styled_button(text=_["CLOSE_BUTTON"], callback_data="close", style=enums.ButtonStyle.DANGER)],
+        [
+            styled_button(text="🔁 AutoPlay", callback_data=f"ADMIN AutoPlay|{chat_id}", style=enums.ButtonStyle.SECONDARY),
+            styled_button(text="🖼 Thumbnail", callback_data=f"ADMIN ThumbToggle|{chat_id}", style=enums.ButtonStyle.SECONDARY),
+        ],
+        [
+            styled_button(
+                text=_["CLOSE_BUTTON"],
+                callback_data="close",
+                style=enums.ButtonStyle.DANGER,
+            )
+        ],
     ]
     return buttons
 
@@ -108,6 +118,10 @@ def stream_markup(_, chat_id):
             styled_button(text="↻", callback_data=f"ADMIN Replay|{chat_id}", style=enums.ButtonStyle.PRIMARY),
             styled_button(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}", style=enums.ButtonStyle.PRIMARY),
             styled_button(text="▢", callback_data=f"ADMIN Stop|{chat_id}", style=enums.ButtonStyle.PRIMARY),
+        ],
+        [
+            styled_button(text="🔁 AutoPlay", callback_data=f"ADMIN AutoPlay|{chat_id}", style=enums.ButtonStyle.SECONDARY),
+            styled_button(text="🖼 Thumbnail", callback_data=f"ADMIN ThumbToggle|{chat_id}", style=enums.ButtonStyle.SECONDARY),
         ],
         [styled_button(text=_["CLOSE_BUTTON"], callback_data="close", style=enums.ButtonStyle.DANGER)],
     ]

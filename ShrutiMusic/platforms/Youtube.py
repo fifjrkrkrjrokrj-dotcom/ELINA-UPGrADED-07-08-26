@@ -36,17 +36,13 @@ async def download_song(link: str) -> str:
                 'outtmpl': file_path.replace('.mp3', '.%(ext)s'),
                 'quiet': True,
                 'no_warnings': True,
-                'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192',
-                }],
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
-        await loop.run_in_executor(None, _dl)
-        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-            return file_path
+                info = ydl.extract_info([f"https://www.youtube.com/watch?v={video_id}"], download=True)[0]
+                return ydl.prepare_filename(info)
+        actual_file = await loop.run_in_executor(None, _dl)
+        if os.path.exists(actual_file) and os.path.getsize(actual_file) > 0:
+            return actual_file
         return None
     except Exception:
         if os.path.exists(file_path):

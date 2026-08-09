@@ -447,6 +447,38 @@ async def del_back_playlist(client, CallbackQuery, _):
             _["admin_4"].format(mention), reply_markup=close_markup(_)
         )
     
+    elif command == "AutoPlay":
+        await CallbackQuery.answer()
+        got = await get_loop(chat_id)
+        if got != 0:
+            await set_loop(chat_id, 0)
+            return await CallbackQuery.message.reply_text(
+                text=f"**AutoPlay** has been **disabled** by {mention}.",
+                reply_markup=close_markup(_)
+            )
+        else:
+            await set_loop(chat_id, 10)
+            return await CallbackQuery.message.reply_text(
+                text=f"**AutoPlay** has been **enabled** by {mention}.",
+                reply_markup=close_markup(_)
+            )
+            
+    elif command == "ThumbToggle":
+        await CallbackQuery.answer()
+        from ShrutiMusic.utils.database import is_thumb_on, thumb_on, thumb_off
+        if await is_thumb_on(chat_id):
+            await thumb_off(chat_id)
+            return await CallbackQuery.message.reply_text(
+                text=f"**Thumbnail Generation** has been **disabled** by {mention}.",
+                reply_markup=close_markup(_)
+            )
+        else:
+            await thumb_on(chat_id)
+            return await CallbackQuery.message.reply_text(
+                text=f"**Thumbnail Generation** has been **enabled** by {mention}.",
+                reply_markup=close_markup(_)
+            )
+    
     elif command == "Stop" or command == "End":
         await CallbackQuery.answer()
         await Nand.stop_stream(chat_id)

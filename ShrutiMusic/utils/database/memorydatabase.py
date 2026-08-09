@@ -26,6 +26,7 @@ channelconnect = {}
 langm = {}
 pause = {}
 mute = {}
+thumb = {}
 active = []
 activevideo = []
 nonadmin = {}
@@ -479,6 +480,15 @@ async def add_off(on_off: int):
     return await onoffdb.delete_one({"on_off": on_off})
 
 # Maintenance
+
+async def is_thumb_on(chat_id: int) -> bool:
+    return thumb.get(chat_id, True)
+
+async def thumb_on(chat_id: int):
+    thumb[chat_id] = True
+
+async def thumb_off(chat_id: int):
+    thumb[chat_id] = False
 
 async def is_maintenance():
     if not maintenance:

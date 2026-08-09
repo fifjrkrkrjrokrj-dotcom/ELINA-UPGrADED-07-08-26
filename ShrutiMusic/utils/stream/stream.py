@@ -30,7 +30,11 @@ import config
 from ShrutiMusic import Carbon, YouTube, app
 from ShrutiMusic.core.call import Nand
 from ShrutiMusic.misc import db
-from ShrutiMusic.utils.database import add_active_video_chat, is_active_chat
+from ShrutiMusic.utils.database import (
+    add_active_video_chat,
+    is_active_chat,
+    is_thumb_on,
+)
 from ShrutiMusic.utils.exceptions import AssistantErr
 from ShrutiMusic.utils.inline import aq_markup, close_markup, stream_markup
 from ShrutiMusic.utils.pastebin import NandBin
@@ -120,7 +124,10 @@ async def stream(
                     "video" if video else "audio",
                     forceplay=forceplay,
                 )
-                img = await gen_thumb(vidid)
+                if await is_thumb_on(chat_id):
+                    img = await gen_thumb(vidid)
+                else:
+                    img = config.YOUTUBE_IMG_URL
                 button = stream_markup(_, chat_id)
                 run = await app.send_photo(
                     original_chat_id,
