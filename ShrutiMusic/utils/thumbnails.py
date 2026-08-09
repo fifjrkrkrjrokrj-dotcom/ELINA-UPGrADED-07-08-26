@@ -58,6 +58,17 @@ async def gen_thumb(videoid: str):
                 if resp.status == 200:
                     async with aiofiles.open(thumb_path, "wb") as f:
                         await f.write(await resp.read())
+                else:
+                    # Fallback to hqdefault
+                    fallback_url = f"https://img.youtube.com/vi/{videoid}/hqdefault.jpg"
+                    async with session.get(fallback_url) as resp2:
+                        if resp2.status == 200:
+                            async with aiofiles.open(thumb_path, "wb") as f:
+                                await f.write(await resp2.read())
+
+        if not os.path.exists(thumb_path):
+            import config
+            return config.YOUTUBE_IMG_URL
 
         output = CACHE_DIR / f"{videoid}_final.png"
 
@@ -100,4 +111,5 @@ async def gen_thumb(videoid: str):
     except Exception as e:
         print(f"[THUMB ERROR] {e}")
         traceback.print_exc()
-        return None
+        import config
+        return config.YOUTUBE_IMG_URL

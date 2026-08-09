@@ -33,9 +33,14 @@ async def download_song(link: str) -> str:
         def _dl():
             ydl_opts = {
                 'format': 'bestaudio/best',
-                'outtmpl': file_path,
+                'outtmpl': file_path.replace('.mp3', '.%(ext)s'),
                 'quiet': True,
                 'no_warnings': True,
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
