@@ -221,7 +221,10 @@ async def stream(
                 "video" if video else "audio",
                 forceplay=forceplay,
             )
-            img = await gen_thumb(vidid)
+            if await is_thumb_on(chat_id):
+                img = await gen_thumb(vidid)
+            else:
+                img = config.YOUTUBE_IMG_URL
             button = stream_markup(_, chat_id)
             run = await app.send_photo(
                 original_chat_id,

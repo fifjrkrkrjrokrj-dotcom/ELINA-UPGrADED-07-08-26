@@ -452,12 +452,14 @@ async def del_back_playlist(client, CallbackQuery, _):
         got = await get_loop(chat_id)
         if got != 0:
             await set_loop(chat_id, 0)
+            await CallbackQuery.answer(f"AutoPlay has been disabled by {mention}.", show_alert=True)
             return await CallbackQuery.message.reply_text(
                 text=f"**AutoPlay** has been **disabled** by {mention}.",
                 reply_markup=close_markup(_)
             )
         else:
             await set_loop(chat_id, 10)
+            await CallbackQuery.answer(f"AutoPlay has been enabled by {mention}.", show_alert=True)
             return await CallbackQuery.message.reply_text(
                 text=f"**AutoPlay** has been **enabled** by {mention}.",
                 reply_markup=close_markup(_)

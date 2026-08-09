@@ -409,7 +409,11 @@ class Call(PyTgCalls):
                         original_chat_id,
                         text=_["call_6"],
                     )
-                img = await gen_thumb(videoid)
+                from ShrutiMusic.utils.database import is_thumb_on
+                if await is_thumb_on(chat_id):
+                    img = await gen_thumb(videoid)
+                else:
+                    img = config.YOUTUBE_IMG_URL
                 button = stream_markup(_, chat_id)
                 run = await app.send_photo(
                     chat_id=original_chat_id,
@@ -455,7 +459,11 @@ class Call(PyTgCalls):
                         original_chat_id,
                         text=_["call_6"],
                     )
-                img = await gen_thumb(videoid)
+                from ShrutiMusic.utils.database import is_thumb_on
+                if await is_thumb_on(chat_id):
+                    img = await gen_thumb(videoid)
+                else:
+                    img = config.YOUTUBE_IMG_URL
                 button = stream_markup(_, chat_id)
                 await mystic.delete()
                 run = await app.send_photo(
