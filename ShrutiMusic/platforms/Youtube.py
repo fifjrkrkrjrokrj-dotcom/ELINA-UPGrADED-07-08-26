@@ -29,17 +29,17 @@ async def download_song(link: str) -> str:
         return file_path
 
     try:
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
-            async with session.get(
-                f"{API_URL}/download",
-                params={"url": video_id, "type": "audio", "api_key": API_KEY},
-                timeout=aiohttp.ClientTimeout(total=300)
-            ) as resp:
-                if resp.status != 200:
-                    return None
-                with open(file_path, "wb") as f:
-                    async for chunk in resp.content.iter_chunked(131072):
-                        f.write(chunk)
+        loop = asyncio.get_event_loop()
+        def _dl():
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'outtmpl': file_path,
+                'quiet': True,
+                'no_warnings': True,
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
+        await loop.run_in_executor(None, _dl)
         if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
             return file_path
         return None
@@ -62,17 +62,17 @@ async def download_video(link: str) -> str:
         return file_path
 
     try:
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
-            async with session.get(
-                f"{API_URL}/download",
-                params={"url": video_id, "type": "video", "api_key": API_KEY},
-                timeout=aiohttp.ClientTimeout(total=600)
-            ) as resp:
-                if resp.status != 200:
-                    return None
-                with open(file_path, "wb") as f:
-                    async for chunk in resp.content.iter_chunked(131072):
-                        f.write(chunk)
+        loop = asyncio.get_event_loop()
+        def _dl():
+            ydl_opts = {
+                'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+                'outtmpl': file_path,
+                'quiet': True,
+                'no_warnings': True,
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
+        await loop.run_in_executor(None, _dl)
         if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
             return file_path
         return None
