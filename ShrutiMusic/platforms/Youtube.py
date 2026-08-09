@@ -50,7 +50,15 @@ async def download_song(link: str) -> str:
                     return
 
                 download_link = f"{API_URL}{data['download_url']}"
-                return download_link
+
+            async with session.get(download_link) as file_response:
+                if file_response.status != 200:
+                    return
+                with open(file_path, "wb") as f:
+                    async for chunk in file_response.content.iter_chunked(8192):
+                        f.write(chunk)
+
+        return file_path
 
     except Exception:
         return
@@ -88,7 +96,15 @@ async def download_video(link: str) -> str:
                     return
 
                 download_link = f"{API_URL}{data['download_url']}"
-                return download_link
+
+            async with session.get(download_link) as file_response:
+                if file_response.status != 200:
+                    return
+                with open(file_path, "wb") as f:
+                    async for chunk in file_response.content.iter_chunked(8192):
+                        f.write(chunk)
+
+        return file_path
 
     except Exception:
         return
