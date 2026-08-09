@@ -130,7 +130,7 @@ async def gen_thumb(videoid: str):
                 medium_font = ImageFont.load_default()
                 small_font = ImageFont.load_default()
 
-            draw.text((2950, 1020), BOT_NAME, font=medium_font, fill=(255, 0, 0))
+            draw.text((2950, 1020), "ELINA MUSIC", font=medium_font, fill=(255, 0, 0))
 
             wave_y = 1740
             for x in range(300, 3400, 20):
