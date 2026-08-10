@@ -20,14 +20,7 @@ def time_to_seconds(time):
 async def download_song(link: str) -> str:
     video_id = link.split('v=')[-1].split('&')[0] if 'v=' in link else link
     if not video_id or len(video_id) < 3:
-        return
-
-    DOWNLOAD_DIR = "downloads"
-    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-    file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.webm")
-
-    if os.path.exists(file_path):
-        return file_path
+        return None
 
     try:
         async with aiohttp.ClientSession() as session:
@@ -39,41 +32,24 @@ async def download_song(link: str) -> str:
 
             async with session.post(f"{API_URL}/download", json=payload, headers=headers) as response:
                 data = await response.json(content_type=None)
-
-                if response.status != 200:
-                    return
-
-                if data.get("status") == "error":
-                    return
-
-                if data.get("status") != "success" or not data.get("download_url"):
-                    return
-
-                download_link = f"{API_URL}{data['download_url']}"
-
-            async with session.get(download_link) as file_response:
-                if file_response.status != 200:
-                    return
-                with open(file_path, "wb") as f:
-                    async for chunk in file_response.content.iter_chunked(8192):
-                        f.write(chunk)
-
-        return file_path
-
+                if response.status == 200 and data.get("status") == "success" and data.get("download_url"):
+                    return f"{API_URL}{data['download_url']}"
     except Exception:
-        return
+        pass
+
+    # Fallback to yt-dlp if API fails
+    try:
+        ytdl_opts = {'format': 'bestaudio/best', 'quiet': True, 'noplaylist': True}
+        with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
+            info = ydl.extract_info(link, download=False)
+            return info['url']
+    except Exception:
+        return None
 
 async def download_video(link: str) -> str:
     video_id = link.split('v=')[-1].split('&')[0] if 'v=' in link else link
     if not video_id or len(video_id) < 3:
-        return
-
-    DOWNLOAD_DIR = "downloads"
-    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-    file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.mkv")
-
-    if os.path.exists(file_path):
-        return file_path
+        return None
 
     try:
         async with aiohttp.ClientSession() as session:
@@ -85,29 +61,19 @@ async def download_video(link: str) -> str:
 
             async with session.post(f"{API_URL}/download", json=payload, headers=headers) as response:
                 data = await response.json(content_type=None)
-
-                if response.status != 200:
-                    return
-
-                if data.get("status") == "error":
-                    return
-
-                if data.get("status") != "success" or not data.get("download_url"):
-                    return
-
-                download_link = f"{API_URL}{data['download_url']}"
-
-            async with session.get(download_link) as file_response:
-                if file_response.status != 200:
-                    return
-                with open(file_path, "wb") as f:
-                    async for chunk in file_response.content.iter_chunked(8192):
-                        f.write(chunk)
-
-        return file_path
-
+                if response.status == 200 and data.get("status") == "success" and data.get("download_url"):
+                    return f"{API_URL}{data['download_url']}"
     except Exception:
-        return
+        pass
+
+    # Fallback to yt-dlp if API fails
+    try:
+        ytdl_opts = {'format': 'best[height<=720]', 'quiet': True, 'noplaylist': True}
+        with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
+            info = ydl.extract_info(link, download=False)
+            return info['url']
+    except Exception:
+        return None
 
 
 class YouTubeAPI:
