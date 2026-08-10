@@ -16,6 +16,14 @@ from pytgcalls.types.input_stream import AudioPiped, AudioVideoPiped
 from pytgcalls.types.input_stream.quality import HighQualityAudio, MediumQualityVideo
 from pytgcalls.types.stream import StreamAudioEnded
 
+from pytgcalls.file_manager import FileManager
+_original_check_file_exist = FileManager.check_file_exist
+async def patched_check_file_exist(path: str, headers: dict = None):
+    if path.startswith("http://") or path.startswith("https://"):
+        return
+    return await _original_check_file_exist(path, headers)
+FileManager.check_file_exist = patched_check_file_exist
+
 import config
 from ShrutiMusic import LOGGER, YouTube, app
 from ShrutiMusic.misc import db
