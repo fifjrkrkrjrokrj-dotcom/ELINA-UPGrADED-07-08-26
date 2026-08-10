@@ -227,7 +227,7 @@ class YouTubeAPI:
             else:
                 downloaded_file = await download_song(link)
             if downloaded_file:
-                return downloaded_file, True
+                return downloaded_file, False
             return None, False
         except Exception:
             return None, False
