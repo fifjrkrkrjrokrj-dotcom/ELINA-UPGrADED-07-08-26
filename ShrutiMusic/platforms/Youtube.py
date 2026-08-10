@@ -23,22 +23,6 @@ async def download_song(link: str) -> str:
         return None
 
     try:
-        async with aiohttp.ClientSession() as session:
-            payload = {"url": video_id, "type": "audio"}
-            headers = {
-                "Content-Type": "application/json",
-                "X-API-KEY": API_KEY
-            }
-
-            async with session.post(f"{API_URL}/download", json=payload, headers=headers) as response:
-                data = await response.json(content_type=None)
-                if response.status == 200 and data.get("status") == "success" and data.get("download_url"):
-                    return f"{API_URL}{data['download_url']}"
-    except Exception:
-        pass
-
-    # Fallback to yt-dlp if API fails
-    try:
         ytdl_opts = {'format': 'bestaudio/best', 'quiet': True, 'noplaylist': True}
         with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
             info = ydl.extract_info(link, download=False)
@@ -51,22 +35,6 @@ async def download_video(link: str) -> str:
     if not video_id or len(video_id) < 3:
         return None
 
-    try:
-        async with aiohttp.ClientSession() as session:
-            payload = {"url": video_id, "type": "video"}
-            headers = {
-                "Content-Type": "application/json",
-                "X-API-KEY": API_KEY
-            }
-
-            async with session.post(f"{API_URL}/download", json=payload, headers=headers) as response:
-                data = await response.json(content_type=None)
-                if response.status == 200 and data.get("status") == "success" and data.get("download_url"):
-                    return f"{API_URL}{data['download_url']}"
-    except Exception:
-        pass
-
-    # Fallback to yt-dlp if API fails
     try:
         ytdl_opts = {'format': 'best[height<=720]', 'quiet': True, 'noplaylist': True}
         with yt_dlp.YoutubeDL(ytdl_opts) as ydl:

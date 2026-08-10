@@ -160,20 +160,20 @@ str_1 : "कृपया m3u8 या इंडेक्स लिंक्स �
 str_2 : "➻ मान्य स्ट्रीम सत्यापित।\n\nप्रोसेसिंग..."
 str_3 : "यूट्यूब लाइव स्ट्रीम प्ले करने में विफल। कोई लाइव प्रारूप नहीं मिला।"
 
-ping_1 : "{0} पिंग कर रहा है..."
-ping_2 : "🏓 पोंग : <code>{0}ms</code>\n\n<b><u>{1} सिस्टम स्थिति :</u></b>\n\n↬ अपटाइम : {2}\n↬ रैम : {3}\n↬ सीपीयू : {4}\n↬ डिस्क : {5}\n↬ पायथन-टीजीसीएल : <code>{6}ms</code>"
+ping_1 : "<blockquote>{0} पिंग कर रहा है...</blockquote>"
+ping_2 : "<blockquote>🏓 पोंग : <code>{0}ms</code></blockquote>\n\n<blockquote><b><u>{1} सिस्टम स्थिति :</u></b></blockquote>\n\n<blockquote>↬ अपटाइम : {2}</blockquote>\n<blockquote>↬ रैम : {3}</blockquote>\n<blockquote>↬ सीपीयू : {4}</blockquote>\n<blockquote>↬ डिस्क : {5}</blockquote>\n<blockquote>↬ पायथन-टीजीसीएल : <code>{6}ms</code></blockquote>"
 
-queue_1 : "» कतार प्राप्त हो रही है...\n\nकृपया प्रतीक्षा करें..."
-queue_2 : "» कतार खाली है।"
-queue_3 : "<u>» कतार में ट्रैकों की सूची देखने के लिए यहाँ क्लिक करें :</u> <a href={0}>यहाँ</a>"
-queue_4 : "➲ <b>कतार में जोड़ा गया #{0}\n\n‣ शीर्षक :</b> {1}\n<b>‣ अवधि :</b> {2} मिनट\n<b>‣ द्वारा अनुरोधित :</b> {3}"
+queue_1 : "<blockquote>» कतार प्राप्त हो रही है...</blockquote>\n\n<blockquote>कृपया प्रतीक्षा करें...</blockquote>"
+queue_2 : "<blockquote>» कतार खाली है।</blockquote>"
+queue_3 : "<blockquote><u>» कतार में ट्रैकों की सूची देखने के लिए यहाँ क्लिक करें :</u> <a href={0}>यहाँ</a></blockquote>"
+queue_4 : "<blockquote><b><tg-emoji emoji-id=\"5420163708674384414\">➕</tg-emoji> कतार में जोड़ा गया : #{0}</b></blockquote>\n<blockquote><b><tg-emoji emoji-id=\"5298751777854732392\">🎶</tg-emoji> शीर्षक :</b> {1}\n<b><tg-emoji emoji-id=\"5382194935057372936\">⏱</tg-emoji> अवधि :</b> {2} मिनट\n<b><tg-emoji emoji-id=\"5373012449597335010\">👤</tg-emoji> अनुरोधकर्ता :</b> {3}</blockquote>"
 queue_5 : "केवल एक कतार में ट्रैक है।\n\nलिस्ट देखने के लिए अधिक ट्रैक जोड़ें।"
 queue_6 : "<b>🕚 अवधि :</b> अज्ञात स्ट्रीम\n\nपूरी कतार की सूची प्राप्त करने के लिए नीचे बटन पर क्लिक करें।"
 queue_7 : "\nनीचे बटन पर क्लिक करें।"
 queue_8 : "<b>{0} प्लेयर</b>\n\n🎄 <b>स्ट्रीमिंग :</b> {1}\n\n🔗 <b>स्ट्रीम प्रकार :</b> {2}\n🥀 <b>अनुरोधक :</b> {3}\n{4}"
 
-stream_1 : "➲ <b>स्ट्रीमिंग शुरू की गई |</b>\n\n<b>‣ शीर्षक :</b> <a href={0}>{1}</a>\n<b>‣ अवधि :</b> {2} मिनट\n<b>‣ द्वारा अनुरोधित :</b> {3}"
-stream_2 : "➲ <b>स्ट्रीमिंग शुरू की गई |</b>\n\n<b>‣ स्ट्रीम प्रकार :</b> लाइव स्ट्रीम [URL]\n<b>‣ द्वारा अनुरोधित :</b> {0}"
+stream_1 : "<blockquote><b><tg-emoji emoji-id=\"5334885900356688822\">▶️</tg-emoji> स्ट्रीमिंग शुरू की गई</b></blockquote>\n<blockquote><b><tg-emoji emoji-id=\"5463107823946717464\">🎶</tg-emoji> शीर्षक :</b> <a href={0}>{1}</a>\n<b><tg-emoji emoji-id=\"5382194935057372936\">⏱</tg-emoji> अवधि :</b> {2} मिनट\n<b><tg-emoji emoji-id=\"5373012449597335010\">👤</tg-emoji> अनुरोधकर्ता :</b> {3}</blockquote>"
+stream_2 : "<blockquote><b><tg-emoji emoji-id=\"5334885900356688822\">▶️</tg-emoji> स्ट्रीमिंग शुरू की गई</b></blockquote>\n<blockquote><b><tg-emoji emoji-id=\"5463107823946717464\">🎶</tg-emoji> स्ट्रीम प्रकार :</b> लाइव स्ट्रीम [URL]\n<b><tg-emoji emoji-id=\"5373012449597335010\">👤</tg-emoji> अनुरोधकर्ता :</b> {0}</blockquote>"
 
 CLOSE_BUTTON : "बंद करें"
 BACK_BUTTON : "वापस"
