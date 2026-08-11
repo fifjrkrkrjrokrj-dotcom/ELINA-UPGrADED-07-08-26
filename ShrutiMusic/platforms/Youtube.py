@@ -31,9 +31,17 @@ async def download_song(link: str) -> str:
         }
         
         def download_it():
+            import glob
             with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
                 info = ydl.extract_info(link, download=True)
-                return ydl.prepare_filename(info)
+                expected = ydl.prepare_filename(info)
+                if os.path.exists(expected):
+                    return expected
+                base_name = os.path.splitext(expected)[0]
+                matches = glob.glob(f"{base_name}.*")
+                if matches:
+                    return matches[0]
+                return expected
                 
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, download_it)
@@ -54,9 +62,17 @@ async def download_video(link: str) -> str:
         }
         
         def download_it():
+            import glob
             with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
                 info = ydl.extract_info(link, download=True)
-                return ydl.prepare_filename(info)
+                expected = ydl.prepare_filename(info)
+                if os.path.exists(expected):
+                    return expected
+                base_name = os.path.splitext(expected)[0]
+                matches = glob.glob(f"{base_name}.*")
+                if matches:
+                    return matches[0]
+                return expected
                 
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, download_it)
