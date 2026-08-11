@@ -41,6 +41,9 @@ def git():
     except GitCommandError:
         LOGGER(__name__).info(f"Invalid Git Command")
     except InvalidGitRepositoryError:
+        if not UPSTREAM_REPO:
+            LOGGER(__name__).info("No UPSTREAM_REPO provided. Skipping git update.")
+            return
         repo = Repo.init()
         if "origin" in repo.remotes:
             origin = repo.remote("origin")
