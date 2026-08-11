@@ -23,10 +23,20 @@ async def download_song(link: str) -> str:
         return None
 
     try:
-        ytdl_opts = {'format': 'bestaudio/best', 'quiet': True, 'noplaylist': True}
-        with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
-            info = ydl.extract_info(link, download=False)
-            return info['url']
+        ytdl_opts = {
+            'format': 'bestaudio/best',
+            'quiet': True,
+            'noplaylist': True,
+            'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s'
+        }
+        
+        def download_it():
+            with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
+                info = ydl.extract_info(link, download=True)
+                return ydl.prepare_filename(info)
+                
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, download_it)
     except Exception:
         return None
 
@@ -36,10 +46,20 @@ async def download_video(link: str) -> str:
         return None
 
     try:
-        ytdl_opts = {'format': 'best[height<=720]', 'quiet': True, 'noplaylist': True}
-        with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
-            info = ydl.extract_info(link, download=False)
-            return info['url']
+        ytdl_opts = {
+            'format': 'best[height<=720]',
+            'quiet': True,
+            'noplaylist': True,
+            'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s'
+        }
+        
+        def download_it():
+            with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
+                info = ydl.extract_info(link, download=True)
+                return ydl.prepare_filename(info)
+                
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, download_it)
     except Exception:
         return None
 
