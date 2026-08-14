@@ -22,51 +22,51 @@ async def download_track(link: str, video: bool = False) -> str:
     if not video_id or len(video_id) < 3:
         return None
 
-    outtmpl = f'{DOWNLOAD_DIR}/%(id)s.%(ext)s'
-    cmd = [
-        "python", "-m", "yt_dlp",
-        "--no-warnings",
-        "--quiet",
-        "--geo-bypass",
-        "--retries", "2",
-        "--continue",
-        "--no-part",
-        "--concurrent-fragments", "3",
-        "--socket-timeout", "10",
-        "--retry-sleep", "1",
-        "--no-write-thumbnail",
-        "--no-write-info-json",
-        "--no-embed-metadata",
-        "--no-embed-chapters",
-        "--no-embed-subs",
-        "--extractor-args", "youtube:player_js_version=actual",
-        "-o", outtmpl,
-    ]
+    ytdl_opts = {
+        'quiet': True,
+        'no_warnings': True,
+        'geo_bypass': True,
+        'retries': 2,
+        'socket_timeout': 10,
+        'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s',
+    }
 
     if video:
-        cmd.extend(["-f", "bestvideo[height<=720]+bestaudio/best[height<=720]", "--merge-output-format", "mp4"])
+        ytdl_opts['format'] = 'bestvideo[height<=720]+bestaudio/best[height<=720]'
+        ytdl_opts['merge_output_format'] = 'mp4'
     else:
-        cmd.extend(["-f", "bestaudio[ext=m4a]/bestaudio"])
+        ytdl_opts['format'] = 'bestaudio[ext=m4a]/bestaudio'
 
-    video_url = f"https://www.youtube.com/watch?v={video_id}"
-    cmd.extend([video_url, "--print", "after_move:filepath"])
+    def download_it():
+        import glob
+        with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
+            try:
+                info = ydl.extract_info(link, download=True)
+            except Exception:
+                return None
+                
+            if not info:
+                return None
+                
+            if 'requested_downloads' in info and info['requested_downloads']:
+                filepath = info['requested_downloads'][0]['filepath']
+                if os.path.exists(filepath):
+                    return filepath
 
-    try:
-        process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await process.communicate()
-        if process.returncode != 0:
+            expected = ydl.prepare_filename(info)
+            if os.path.exists(expected):
+                return expected
+                
+            base_name = os.path.splitext(expected)[0]
+            matches = glob.glob(f'{base_name}.*')
+            valid_matches = [m for m in matches if not m.endswith('.part') and not m.endswith('.ytdl')]
+            if valid_matches and os.path.exists(valid_matches[0]):
+                return valid_matches[0]
+                
             return None
-        
-        filepath = stdout.decode().strip()
-        if filepath and os.path.exists(filepath):
-            return filepath
-        return None
-    except Exception:
-        return None
+            
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, download_it)
 
 
 class YouTubeAPI:
