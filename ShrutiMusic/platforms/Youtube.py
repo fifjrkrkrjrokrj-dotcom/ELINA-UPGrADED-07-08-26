@@ -17,71 +17,54 @@ def time_to_seconds(time):
     stringt = str(time)
     return sum(int(x) * 60 ** i for i, x in enumerate(reversed(stringt.split(":"))))
 
-async def download_song(link: str) -> str:
+async def download_track(link: str, video: bool = False) -> str:
     video_id = link.split('v=')[-1].split('&')[0] if 'v=' in link else link
     if not video_id or len(video_id) < 3:
         return None
 
-    try:
-        ytdl_opts = {
-            'format': 'bestaudio/best',
-            'quiet': True,
-            'noplaylist': True,
-            'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s'
-        }
-        
-        def download_it():
-            import glob
-            with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
-                info = ydl.extract_info(link, download=True)
-                if 'requested_downloads' in info and info['requested_downloads']:
-                    return info['requested_downloads'][0]['filepath']
-                expected = ydl.prepare_filename(info)
-                if os.path.exists(expected):
-                    return expected
-                base_name = os.path.splitext(expected)[0]
-                matches = glob.glob(f"{base_name}.*")
-                valid_matches = [m for m in matches if not m.endswith('.part') and not m.endswith('.ytdl')]
-                if valid_matches:
-                    return valid_matches[0]
-                return expected
-                
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, download_it)
-    except Exception:
-        return None
+    outtmpl = f'{DOWNLOAD_DIR}/%(id)s.%(ext)s'
+    cmd = [
+        "python", "-m", "yt_dlp",
+        "--no-warnings",
+        "--quiet",
+        "--geo-bypass",
+        "--retries", "2",
+        "--continue",
+        "--no-part",
+        "--concurrent-fragments", "3",
+        "--socket-timeout", "10",
+        "--retry-sleep", "1",
+        "--no-write-thumbnail",
+        "--no-write-info-json",
+        "--no-embed-metadata",
+        "--no-embed-chapters",
+        "--no-embed-subs",
+        "--extractor-args", "youtube:player_js_version=actual",
+        "-o", outtmpl,
+    ]
 
-async def download_video(link: str) -> str:
-    video_id = link.split('v=')[-1].split('&')[0] if 'v=' in link else link
-    if not video_id or len(video_id) < 3:
-        return None
+    if video:
+        cmd.extend(["-f", "bestvideo[height<=720]+bestaudio/best[height<=720]", "--merge-output-format", "mp4"])
+    else:
+        cmd.extend(["-f", "bestaudio[ext=m4a]/bestaudio"])
+
+    video_url = f"https://www.youtube.com/watch?v={video_id}"
+    cmd.extend([video_url, "--print", "after_move:filepath"])
 
     try:
-        ytdl_opts = {
-            'format': 'best[height<=720]',
-            'quiet': True,
-            'noplaylist': True,
-            'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s'
-        }
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
+        if process.returncode != 0:
+            return None
         
-        def download_it():
-            import glob
-            with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
-                info = ydl.extract_info(link, download=True)
-                if 'requested_downloads' in info and info['requested_downloads']:
-                    return info['requested_downloads'][0]['filepath']
-                expected = ydl.prepare_filename(info)
-                if os.path.exists(expected):
-                    return expected
-                base_name = os.path.splitext(expected)[0]
-                matches = glob.glob(f"{base_name}.*")
-                valid_matches = [m for m in matches if not m.endswith('.part') and not m.endswith('.ytdl')]
-                if valid_matches:
-                    return valid_matches[0]
-                return expected
-                
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, download_it)
+        filepath = stdout.decode().strip()
+        if filepath and os.path.exists(filepath):
+            return filepath
+        return None
     except Exception:
         return None
 
@@ -162,7 +145,7 @@ class YouTubeAPI:
         if "&" in link:
             link = link.split("&")[0]
         try:
-            downloaded_file = await download_video(link)
+            downloaded_file = await download_track(link, True)
             if downloaded_file:
                 return 1, downloaded_file
             return 0, "Video download failed"
@@ -264,14 +247,11 @@ class YouTubeAPI:
         if videoid:
             link = self.base + link
         try:
-            if video:
-                downloaded_file = await download_video(link)
-            else:
-                downloaded_file = await download_song(link)
+            downloaded_file = await download_track(link, bool(video))
             if downloaded_file:
                 return downloaded_file, False
-            return None, False
+            raise Exception("Download failed or file not found")
         except Exception:
-            return None, False
+            raise
 
 YouTube = YouTubeAPI()
