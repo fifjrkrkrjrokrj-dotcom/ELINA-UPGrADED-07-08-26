@@ -34,13 +34,16 @@ async def download_song(link: str) -> str:
             import glob
             with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
                 info = ydl.extract_info(link, download=True)
+                if 'requested_downloads' in info and info['requested_downloads']:
+                    return info['requested_downloads'][0]['filepath']
                 expected = ydl.prepare_filename(info)
                 if os.path.exists(expected):
                     return expected
                 base_name = os.path.splitext(expected)[0]
                 matches = glob.glob(f"{base_name}.*")
-                if matches:
-                    return matches[0]
+                valid_matches = [m for m in matches if not m.endswith('.part') and not m.endswith('.ytdl')]
+                if valid_matches:
+                    return valid_matches[0]
                 return expected
                 
         loop = asyncio.get_event_loop()
@@ -65,13 +68,16 @@ async def download_video(link: str) -> str:
             import glob
             with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
                 info = ydl.extract_info(link, download=True)
+                if 'requested_downloads' in info and info['requested_downloads']:
+                    return info['requested_downloads'][0]['filepath']
                 expected = ydl.prepare_filename(info)
                 if os.path.exists(expected):
                     return expected
                 base_name = os.path.splitext(expected)[0]
                 matches = glob.glob(f"{base_name}.*")
-                if matches:
-                    return matches[0]
+                valid_matches = [m for m in matches if not m.endswith('.part') and not m.endswith('.ytdl')]
+                if valid_matches:
+                    return valid_matches[0]
                 return expected
                 
         loop = asyncio.get_event_loop()
