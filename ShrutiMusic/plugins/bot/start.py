@@ -67,6 +67,60 @@ def _make_start_text_group(_, bot_mention, uptime):
     )
 
 
+async def send_start_media(message: Message, caption: str, reply_markup, media_url=None):
+    url = media_url or config.START_IMG_URL
+    is_video = False
+    if url:
+        clean_url = url.split("?")[0].lower()
+        if clean_url.endswith((".mp4", ".mkv", ".webm", ".mov")):
+            is_video = True
+
+    # 1. Try sending with message_effect_id
+    try:
+        if is_video:
+            return await message.reply_video(
+                video=url,
+                caption=caption,
+                reply_markup=reply_markup,
+                message_effect_id=5159385139981059251,
+            )
+        else:
+            return await message.reply_photo(
+                photo=url,
+                caption=caption,
+                reply_markup=reply_markup,
+                message_effect_id=5159385139981059251,
+            )
+    except Exception:
+        pass
+
+    # 2. Try sending without message_effect_id
+    try:
+        if is_video:
+            return await message.reply_video(
+                video=url,
+                caption=caption,
+                reply_markup=reply_markup,
+            )
+        else:
+            return await message.reply_photo(
+                photo=url,
+                caption=caption,
+                reply_markup=reply_markup,
+            )
+    except Exception:
+        pass
+
+    # 3. Fallback: send as plain text
+    try:
+        return await message.reply_text(
+            text=caption,
+            reply_markup=reply_markup,
+        )
+    except Exception:
+        pass
+
+
 @app.on_message(filters.command(["start"]) & filters.private & ~BANNED_USERS)
 @LanguageStart
 async def start_pm(client, message: Message, _):
@@ -75,17 +129,11 @@ async def start_pm(client, message: Message, _):
         name = message.text.split(None, 1)[1]
         if name[0:4] == "help":
             keyboard = help_pannel_page1(_)
-            try:
-                return await message.reply_video(video=config.START_IMG_URL,
-                    caption=_["help_1"].format(config.SUPPORT_GROUP),
-                    reply_markup=keyboard,
-                    message_effect_id=5159385139981059251,
-                )
-            except:
-                return await message.reply_video(video=config.START_IMG_URL,
-                    caption=_["help_1"].format(config.SUPPORT_GROUP),
-                    reply_markup=keyboard,
-                )
+            return await send_start_media(
+                message=message,
+                caption=_["help_1"].format(config.SUPPORT_GROUP),
+                reply_markup=keyboard
+            )
         if name[0:3] == "sud":
             await sudoers_list(client=client, message=message, _=_)
             if await is_on_off(2):
@@ -146,17 +194,11 @@ async def start_pm(client, message: Message, _):
             caption = _make_start_text_pm(
                 _, message.from_user.mention, app.mention, UP, DISK, CPU, RAM
             )
-            try:
-                await message.reply_video(video=config.START_IMG_URL,
-                    caption=caption,
-                    reply_markup=InlineKeyboardMarkup(out),
-                    message_effect_id=5159385139981059251,
-                )
-            except:
-                await message.reply_video(video=config.START_IMG_URL,
-                    caption=caption,
-                    reply_markup=InlineKeyboardMarkup(out),
-                )
+            await send_start_media(
+                message=message,
+                caption=caption,
+                reply_markup=InlineKeyboardMarkup(out)
+            )
             if await is_on_off(2):
                 return await app.send_message(
                     chat_id=config.LOG_GROUP_ID,
@@ -168,17 +210,11 @@ async def start_pm(client, message: Message, _):
         caption = _make_start_text_pm(
             _, message.from_user.mention, app.mention, UP, DISK, CPU, RAM
         )
-        try:
-            await message.reply_video(video=config.START_IMG_URL,
-                caption=caption,
-                reply_markup=InlineKeyboardMarkup(out),
-                message_effect_id=5159385139981059251,
-            )
-        except:
-            await message.reply_video(video=config.START_IMG_URL,
-                caption=caption,
-                reply_markup=InlineKeyboardMarkup(out),
-            )
+        await send_start_media(
+            message=message,
+            caption=caption,
+            reply_markup=InlineKeyboardMarkup(out)
+        )
         if await is_on_off(2):
             return await app.send_message(
                 chat_id=config.LOG_GROUP_ID,
@@ -191,17 +227,11 @@ async def start_gp(client, message: Message, _):
     out = start_panel(_)
     uptime = int(time.time() - _boot_)
     caption = _make_start_text_group(_, app.mention, get_readable_time(uptime))
-    try:
-        await message.reply_video(video=config.START_IMG_URL,
-            caption=caption,
-            reply_markup=InlineKeyboardMarkup(out),
-            message_effect_id=5159385139981059251,
-        )
-    except:
-        await message.reply_video(video=config.START_IMG_URL,
-            caption=caption,
-            reply_markup=InlineKeyboardMarkup(out),
-        )
+    await send_start_media(
+        message=message,
+        caption=caption,
+        reply_markup=InlineKeyboardMarkup(out)
+    )
     return await add_served_chat(message.chat.id)
 
 @app.on_message(filters.new_chat_members, group=-1)
@@ -237,17 +267,11 @@ async def welcome(client, message: Message):
                 except:
                     pass
                 caption = _make_start_text_group(_, app.mention, get_readable_time(uptime))
-                try:
-                    await message.reply_video(video=config.START_IMG_URL,
-                        caption=caption,
-                        reply_markup=InlineKeyboardMarkup(out),
-                        message_effect_id=5159385139981059251,
-                    )
-                except:
-                    await message.reply_video(video=config.START_IMG_URL,
-                        caption=caption,
-                        reply_markup=InlineKeyboardMarkup(out),
-                    )
+                await send_start_media(
+                    message=message,
+                    caption=caption,
+                    reply_markup=InlineKeyboardMarkup(out)
+                )
                 await add_served_chat(message.chat.id)
                 await message.stop_propagation()
         except Exception as ex:

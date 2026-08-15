@@ -15,6 +15,12 @@ def dirr():
 
     if "downloads" not in os.listdir():
         os.mkdir("downloads")
+    else:
+        for file in os.listdir("downloads"):
+            try:
+                os.remove(os.path.join("downloads", file))
+            except:
+                pass
     if "cache" not in os.listdir():
         os.mkdir("cache")
 

@@ -7,66 +7,92 @@ from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 from py_yt import VideosSearch, Playlist
 import aiohttp
+import config
 
-API_URL = "https://teaminflex.xyz"
-API_KEY = "INFLEX49143828D"
-
+API_URL = config.SHRUTI_API_URL
+API_KEY = config.SHRUTI_API_KEY
 DOWNLOAD_DIR = "downloads"
 
 def time_to_seconds(time):
     stringt = str(time)
     return sum(int(x) * 60 ** i for i, x in enumerate(reversed(stringt.split(":"))))
 
-async def download_track(link: str, video: bool = False) -> str:
-    video_id = link.split('v=')[-1].split('&')[0] if 'v=' in link else link
+def extract_video_id(link: str) -> str:
+    if "youtu.be/" in link:
+        return link.split("youtu.be/")[-1].split("?")[0].split("&")[0]
+    elif "v=" in link:
+        return link.split("v=")[-1].split("&")[0]
+    elif "embed/" in link:
+        return link.split("embed/")[-1].split("?")[0].split("&")[0]
+    elif "shorts/" in link:
+        return link.split("shorts/")[-1].split("?")[0].split("&")[0]
+    return link
+
+async def download_song(link: str) -> str:
+    video_id = extract_video_id(link)
     if not video_id or len(video_id) < 3:
         return None
 
-    ytdl_opts = {
-        'quiet': True,
-        'no_warnings': True,
-        'geo_bypass': True,
-        'retries': 2,
-        'socket_timeout': 10,
-        'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s',
-    }
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+    file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.mp3")
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        return file_path
 
-    if video:
-        ytdl_opts['format'] = 'bestvideo[height<=720]+bestaudio/best[height<=720]'
-        ytdl_opts['merge_output_format'] = 'mp4'
-    else:
-        ytdl_opts['format'] = 'bestaudio[ext=m4a]/bestaudio'
-
-    def download_it():
-        import glob
-        with yt_dlp.YoutubeDL(ytdl_opts) as ydl:
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{API_URL}/download",
+                params={"url": video_id, "type": "audio", "api_key": API_KEY},
+                timeout=aiohttp.ClientTimeout(total=300)
+            ) as resp:
+                if resp.status != 200:
+                    return None
+                with open(file_path, "wb") as f:
+                    async for chunk in resp.content.iter_chunked(131072):
+                        f.write(chunk)
+        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+            return file_path
+        return None
+    except Exception:
+        if os.path.exists(file_path):
             try:
-                info = ydl.extract_info(link, download=True)
+                os.remove(file_path)
             except Exception:
-                return None
-                
-            if not info:
-                return None
-                
-            if 'requested_downloads' in info and info['requested_downloads']:
-                filepath = info['requested_downloads'][0]['filepath']
-                if os.path.exists(filepath):
-                    return filepath
+                pass
+        return None
 
-            expected = ydl.prepare_filename(info)
-            if os.path.exists(expected):
-                return expected
-                
-            base_name = os.path.splitext(expected)[0]
-            matches = glob.glob(f'{base_name}.*')
-            valid_matches = [m for m in matches if not m.endswith('.part') and not m.endswith('.ytdl')]
-            if valid_matches and os.path.exists(valid_matches[0]):
-                return valid_matches[0]
-                
-            return None
-            
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, download_it)
+async def download_video(link: str) -> str:
+    video_id = extract_video_id(link)
+    if not video_id or len(video_id) < 3:
+        return None
+
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+    file_path = os.path.join(DOWNLOAD_DIR, f"{video_id}.mp4")
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        return file_path
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{API_URL}/download",
+                params={"url": video_id, "type": "video", "api_key": API_KEY},
+                timeout=aiohttp.ClientTimeout(total=600)
+            ) as resp:
+                if resp.status != 200:
+                    return None
+                with open(file_path, "wb") as f:
+                    async for chunk in resp.content.iter_chunked(131072):
+                        f.write(chunk)
+        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+            return file_path
+        return None
+    except Exception:
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception:
+                pass
+        return None
 
 
 class YouTubeAPI:
@@ -145,7 +171,7 @@ class YouTubeAPI:
         if "&" in link:
             link = link.split("&")[0]
         try:
-            downloaded_file = await download_track(link, True)
+            downloaded_file = await download_video(link)
             if downloaded_file:
                 return 1, downloaded_file
             return 0, "Video download failed"
@@ -247,7 +273,10 @@ class YouTubeAPI:
         if videoid:
             link = self.base + link
         try:
-            downloaded_file = await download_track(link, bool(video))
+            if video:
+                downloaded_file = await download_video(link)
+            else:
+                downloaded_file = await download_song(link)
             if downloaded_file:
                 return downloaded_file, False
             raise Exception("Download failed or file not found")
