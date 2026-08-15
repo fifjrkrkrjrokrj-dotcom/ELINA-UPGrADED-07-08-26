@@ -140,13 +140,20 @@ async def greet_group(_, member: ChatMemberUpdated):
             )]
         ])
 
-        temp.MELCOW[f"welcome-{member.chat.id}"] = await app.send_video(
-            member.chat.id,
-            video=config.PING_IMG_URL,
+        temp.MELCOW[f"welcome-{member.chat.id}"] = await app.send_photo(
+            chat_id=member.chat.id,
+            photo=welcomeimg,
             caption=caption,
             reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
         )
 
+        # Cleanup local temporary files to save space
+        try:
+            if os.path.exists(welcomeimg):
+                os.remove(welcomeimg)
+            if pic and os.path.exists(pic) and pic != "ShrutiMusic/assets/upic.png":
+                os.remove(pic)
+        except Exception:
+            pass
     except Exception as e:
         LOGGER.error(e)

@@ -411,16 +411,29 @@ class Nand(Client):
 
         if config.LOG_GROUP_ID:
             try:
-                await self.send_video(
-                    config.LOG_GROUP_ID,
-                    video=config.START_IMG_URL,
-                    caption=f"<b>🎵 Bot Started Successfully</b>\n\n"
-                            f"<b>Name:</b> {self.name}\n"
-                            f"<b>Username:</b> @{self.username}\n"
-                            f"<b>ID:</b> <code>{self.id}</code>\n\n"
-                            f"<i>Bot is now online and ready to serve!</i>",
-                    reply_markup=button,
+                url = config.START_IMG_URL
+                is_video = url.split("?")[0].lower().endswith((".mp4", ".mkv", ".webm", ".mov")) if url else False
+                caption = (
+                    f"<b>🎵 Bot Started Successfully</b>\n\n"
+                    f"<b>Name:</b> {self.name}\n"
+                    f"<b>Username:</b> @{self.username}\n"
+                    f"<b>ID:</b> <code>{self.id}</code>\n\n"
+                    f"<i>Bot is now online and ready to serve!</i>"
                 )
+                if is_video:
+                    await self.send_video(
+                        config.LOG_GROUP_ID,
+                        video=url,
+                        caption=caption,
+                        reply_markup=button,
+                    )
+                else:
+                    await self.send_photo(
+                        chat_id=config.LOG_GROUP_ID,
+                        photo=url,
+                        caption=caption,
+                        reply_markup=button,
+                    )
             except pyrogram.errors.ChatWriteForbidden:
                 LOGGER(__name__).error("Bot cannot write to the log group")
             except Exception as e:
