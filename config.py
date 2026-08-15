@@ -112,10 +112,13 @@ STRING5 = os.getenv("STRING_SESSION5", None)
 AUTO_LEAVING_ASSISTANT = bool(os.getenv("AUTO_LEAVING_ASSISTANT", False))
 
 START_IMG_URL = os.getenv(
-    "START_IMG_URL", "https://image-link.edgeone.app/1785550826913-5xqtau.mp4"
+    "START_IMG_URL", "https://files.catbox.moe/g8gyiu.jpg"
 )
 PING_IMG_URL = os.getenv(
-    "PING_IMG_URL", "https://image-link.edgeone.app/1785548300301-hgwbs2.mp4"
+    "PING_IMG_URL", "https://files.catbox.moe/ulsyb2.jpg"
+)
+HELP_IMG_URL = os.getenv(
+    "HELP_IMG_URL", "https://files.catbox.moe/x6yqe8.jpg"
 )
 PLAYLIST_IMG_URL = "https://files.catbox.moe/pvmze9.jpg"
 STATS_IMG_URL = "https://files.catbox.moe/i691sk.jpg"

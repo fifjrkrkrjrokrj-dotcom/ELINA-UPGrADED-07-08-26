@@ -77,7 +77,7 @@ from ShrutiMusic.utils.inline.help import (
     help_pannel_page3,
     help_pannel_page4,
 )
-from config import BANNED_USERS, START_IMG_URL, SUPPORT_GROUP
+from config import BANNED_USERS, HELP_IMG_URL, SUPPORT_GROUP
 from strings import get_string, helpers
 
 @app.on_message(filters.command(["help"]) & filters.private & ~BANNED_USERS)
@@ -91,11 +91,31 @@ async def helper_private(
     language = await get_lang(update.chat.id)
     _ = get_string(language)
     keyboard = help_pannel_page1(_)
-    await update.reply_photo(
-        photo=START_IMG_URL,
-        caption=_["help_1"].format(SUPPORT_GROUP),
-        reply_markup=keyboard,
-    )
+    
+    url = HELP_IMG_URL
+    is_video = url.split("?")[0].lower().endswith((".mp4", ".mkv", ".webm", ".mov")) if url else False
+    
+    try:
+        if is_video:
+            await update.reply_video(
+                video=url,
+                caption=_["help_1"].format(SUPPORT_GROUP),
+                reply_markup=keyboard,
+            )
+        else:
+            await update.reply_photo(
+                photo=url,
+                caption=_["help_1"].format(SUPPORT_GROUP),
+                reply_markup=keyboard,
+            )
+    except Exception:
+        try:
+            await update.reply_text(
+                text=_["help_1"].format(SUPPORT_GROUP),
+                reply_markup=keyboard,
+            )
+        except Exception:
+            pass
 
 @app.on_message(filters.command(["help"]) & filters.group & ~BANNED_USERS)
 @LanguageStart
