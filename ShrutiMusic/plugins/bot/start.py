@@ -27,18 +27,16 @@ from config import styled_button
 
 
 def _make_start_text_pm(_, mention, bot_mention, UP=None, DISK=None, CPU=None, RAM=None):
-    """Super premium private start message with gorgeous blockquotes and premium custom emojis."""
+    """Super premium private start message with gorgeous separate blockquotes."""
     return (
         f'<tg-emoji emoji-id="6231174832625552804">🦋</tg-emoji> ʜєʏ {mention},\n\n'
-        f'<blockquote>'
-        f'<b>ᴡєʟᴄᴏϻє ᴛᴏ {bot_mention} !</b>\n\n'
-        f'<tg-emoji emoji-id="5913546818376964276">❤️</tg-emoji> ᴛʜɪs ɪs ϻυsɪᴄ ʙσᴛ\n'
+        f'<blockquote><b>ᴡєʟᴄᴏϻє ᴛᴏ {bot_mention} !</b></blockquote>\n'
+        f'<blockquote><tg-emoji emoji-id="5913546818376964276">❤️</tg-emoji> ᴛʜɪs ɪs ϻυsɪᴄ ʙσᴛ\n'
         f'<tg-emoji emoji-id="6125239923831217642">✨</tg-emoji> ησ ʟᴧɢ | ᴧᴅs ϻυsɪᴄ | ησ ᴘʀσϻσ\n'
-        f'<tg-emoji emoji-id="5461117441612462242">🙂</tg-emoji> 24x7 ʀυη | ʙєsᴛ sσυηᴅ ǫυᴧʟɪᴛʏ\n\n'
-        f'<tg-emoji emoji-id="5271721134889395048">📼</tg-emoji> ᴜsᴇʀ: {mention}\n'
-        f'<tg-emoji emoji-id="5429472766820628204">🕊</tg-emoji> ʙᴏᴛ ηᴧϻє: {bot_mention}\n'
-        f'</blockquote>\n'
-        f'<tg-emoji emoji-id="6231271181626903902">🎀</tg-emoji> ᴄʟɪᴄᴋ ση ᴛʜє ʜєʟᴩ ʙυᴛᴛση ᴛσ ɢєᴛ ɪηғσ ᴧʙσυᴛ ϻʏ ϻσᴅυʟєs ᴧηᴅ ᴄσϻϻᴧηᴅs...!\n\n'
+        f'<tg-emoji emoji-id="5461117441612462242">🙂</tg-emoji> 24x7 ʀυη | ʙєsᴛ sσυηᴅ ǫυᴧʟɪᴛʏ</blockquote>\n'
+        f'<blockquote><tg-emoji emoji-id="5271721134889395048">📼</tg-emoji> ᴜsᴇʀ: {mention}\n'
+        f'<tg-emoji emoji-id="5429472766820628204">🕊</tg-emoji> ʙᴏᴛ ηᴧϻє: {bot_mention}</blockquote>\n'
+        f'<blockquote><tg-emoji emoji-id="6231271181626903902">🎀</tg-emoji> ᴄʟɪᴄᴋ ση ᴛʜє ʜєʟᴩ ʙυᴛᴛση ᴛσ ɢєᴛ ɪηғσ ᴧʙσυᴛ ϻʏ ϻσᴅυʟєs ᴧηᴅ ᴄσϻϻᴧηᴅs...!</blockquote>\n\n'
         f'<tg-emoji emoji-id="6127558265573218459">💖</tg-emoji> ᴇɴᴊᴏʏ ɴᴏɴsᴛᴏᴘ ᴍᴜsɪᴄ ᴡɪᴛʜ {bot_mention}'
     )
 
@@ -51,11 +49,9 @@ def _make_start_text_group(_, bot_mention, uptime):
     """Rich group start message with blockquotes."""
     return (
         f"<b>🎵 {bot_mention} — Premium Music Bot</b>\n\n"
-        f"<blockquote>"
-        f"✨ High-quality music streaming in your Voice Chat.\n"
-        f"Supports YouTube • Spotify • Apple Music • SoundCloud • Telegram files.\n\n"
-        f"⚡ Uptime: <code>{uptime}</code>"
-        f"</blockquote>\n\n"
+        f"<blockquote>✨ High-quality music streaming in your Voice Chat.</blockquote>\n"
+        f"<blockquote>Supports YouTube • Spotify • Apple Music • SoundCloud • Telegram files.</blockquote>\n"
+        f"<blockquote>⚡ Uptime: <code>{uptime}</code></blockquote>\n\n"
         f"<i>Use the buttons below to get started 👇</i>"
     )
 

@@ -76,22 +76,9 @@ async def settings_back_markup(client, CallbackQuery: CallbackQuery, _):
         pass
     if CallbackQuery.message.chat.type == ChatType.PRIVATE:
         buttons = private_panel(_)
-        caption = (
-            f"🦋 ʜєʏ {CallbackQuery.from_user.mention} ᴡєʟᴄᴏϻє ᴛᴏ {app.mention}\n"
-            f"ʜᴏᴡ αʀє ʏᴏᴜ\n"
-            f"ᴛʜɪs ɪs  {app.mention}\n"
-            f"— — — — — — — —\n"
-            f"❤‍🔥 ᴛʜɪs ɪs ϻυsɪᴄ ʙσᴛ\n"
-            f"✨ ησ ʟᴧɢ | ᴧᴅs ϻυsɪᴄ | ησ ᴘʀσϻσ\n"
-            f"🙂 24x7 ʀυη | ʙєsᴛ sσυηᴅ ǫυᴧʟɪᴛʏ\n"
-            f"📼 ᴜsᴇʀ: {CallbackQuery.from_user.mention}\n"
-            f"🕊 ʙᴏᴛ ηᴧϻє: {app.mention}\n"
-            f"— — — — — — — —\n"
-            f"🎀 ᴄʟɪᴄᴋ ση ᴛʜє ʜєʟᴩ ʙυᴛᴛση ᴛσ ɢєᴛ ɪηғσ\n"
-            f"ᴧʙσυᴛ ϻʏ ϻσᴅυʟєs ᴧηᴅ ᴄσϻϻᴧηᴅs...!\n"
-            f"📌 ᴀᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅs\n"
-            f"— — — — — — — —\n"
-            f"💖 ᴇɴᴊᴏʏ ɴᴏɴsᴛᴏᴘ ᴍᴜsɪᴄ ᴡɪᴛʜ {app.mention}"
+        from ShrutiMusic.plugins.bot.start import _make_start_text_pm
+        caption = _make_start_text_pm(
+            _, CallbackQuery.from_user.mention, app.mention
         )
         try:
             return await CallbackQuery.edit_message_text(

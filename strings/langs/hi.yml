@@ -46,7 +46,7 @@ admin_2: "<blockquote>➻ प्रसारण ठहरा दिया 🎄\n
 admin_3: "<blockquote>» क्या आपको याद है कि आपने प्रसारण को ठहराया था?</blockquote>"
 admin_4: "<blockquote>➻ प्रसारण पुनः आरंभ 🎄\n│ \n└द्वारा : {0} 🥀</blockquote>"
 admin_5: "<blockquote>➻ प्रसारण समाप्त/रोक दिया 🎄\n│ \n└द्वारा : {0} 🥀</blockquote>"
-admin_6: "<blockquote>➻ प्रसारण रोका 🎄\n│ \n└द्वारा : {0} 🥀\n\n<b>» {1} में अब कोई और ट्रैक कतार में नहीं है, वीडियोचैट छोड़ रहे हैं।</b></blockquote>"
+admin_6: "<blockquote>➻ प्रसारण रोका 🎄\n│ \n└द्वारा : {0} 🥀</blockquote>\n<blockquote><b>» {1} में अब कोई और ट्रैक कतार में नहीं है, वीडियोचैट छोड़ रहे हैं।</b></blockquote>"
 admin_7: "<blockquote>स्ट्रीम {0} को बदलते समय त्रुटि।</blockquote>"
 admin_8: "<blockquote>» कृपया लूप प्ले को अक्षम करें और फिर से स्किप का प्रयास करें। <code>/loop disable</code> के माध्यम से लूप प्ले को अक्षम करें।</blockquote>"
 admin_9: "<blockquote>कृपया स्किप के लिए विशिष्ट संख्याएँ उपयोग करें, जैसे 1, 2, 4...</blockquote>"

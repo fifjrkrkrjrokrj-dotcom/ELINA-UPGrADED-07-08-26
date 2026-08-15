@@ -121,7 +121,7 @@ async def fork_repo_callback(client, query):
 
     try:
         await query.message.edit_media(
-            media=get_input_media(config.START_IMG_URL, caption),
+            media=get_input_media(REPO_VIDEO, caption),
             reply_markup=buttons
         )
     except Exception:
