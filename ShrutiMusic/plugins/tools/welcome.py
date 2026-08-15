@@ -94,12 +94,6 @@ async def greet_group(_, member: ChatMemberUpdated):
         return
 
     user = member.new_chat_member.user if member.new_chat_member else member.from_user
-    try:
-        pic = await app.download_media(
-            user.photo.big_file_id, file_name=f"pp{user.id}.png"
-        )
-    except AttributeError:
-        pic = "ShrutiMusic/assets/upic.png"
 
     if (temp.MELCOW).get(f"welcome-{member.chat.id}") is not None:
         try:
@@ -109,11 +103,8 @@ async def greet_group(_, member: ChatMemberUpdated):
 
     try:
         username_display = user.username if user.username else "ɴᴏᴛ sᴇᴛ"
-        welcomeimg = welcomepic(
-            pic, user.first_name, member.chat.title, user.id, username_display
-        )
         
-        # ✅ Fixed caption: removed unsupported <blockquote> tags
+        # Caption with structured blockquotes
         caption = (
             f"✨ <b>˹ ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ɢʀᴏᴜᴘ ˼</b>\n\n"
             f"<blockquote>"
@@ -140,20 +131,12 @@ async def greet_group(_, member: ChatMemberUpdated):
             )]
         ])
 
+        welcome_img = "https://files.catbox.moe/e1qspr.jpg"
         temp.MELCOW[f"welcome-{member.chat.id}"] = await app.send_photo(
             chat_id=member.chat.id,
-            photo=welcomeimg,
+            photo=welcome_img,
             caption=caption,
             reply_markup=reply_markup,
         )
-
-        # Cleanup local temporary files to save space
-        try:
-            if os.path.exists(welcomeimg):
-                os.remove(welcomeimg)
-            if pic and os.path.exists(pic) and pic != "ShrutiMusic/assets/upic.png":
-                os.remove(pic)
-        except Exception:
-            pass
     except Exception as e:
         LOGGER.error(e)
