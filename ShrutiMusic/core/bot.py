@@ -310,6 +310,7 @@ class Nand(Client):
                 raise e
 
     async def send_photo(self, chat_id, photo, caption="", *args, **kwargs):
+        kwargs["has_spoiler"] = True
         if "caption" in kwargs:
             kwargs["caption"] = transform_custom_emojis(kwargs["caption"])
         elif caption:
@@ -335,6 +336,7 @@ class Nand(Client):
         return await super().send_photo(chat_id, photo, caption, *args, **kwargs)
 
     async def send_video(self, chat_id, video, caption="", *args, **kwargs):
+        kwargs["has_spoiler"] = True
         if "caption" in kwargs:
             kwargs["caption"] = transform_custom_emojis(kwargs["caption"])
         elif caption:
@@ -361,16 +363,11 @@ class Nand(Client):
         return await super().edit_message_caption(chat_id, message_id, caption, *args, **kwargs)
 
     async def edit_message_media(self, chat_id, message_id, media, *args, **kwargs):
-        if media and getattr(media, "caption", None):
-            media.caption = transform_custom_emojis(media.caption)
+        if media:
+            media.has_spoiler = True
+            if getattr(media, "caption", None):
+                media.caption = transform_custom_emojis(media.caption)
         return await super().edit_message_media(chat_id, message_id, media, *args, **kwargs)
-
-    async def send_video(self, chat_id, video, caption="", *args, **kwargs):
-        if "caption" in kwargs:
-            kwargs["caption"] = transform_custom_emojis(kwargs["caption"])
-        elif caption:
-            caption = transform_custom_emojis(caption)
-        return await super().send_video(chat_id, video, caption, *args, **kwargs)
 
     async def send_audio(self, chat_id, audio, caption="", *args, **kwargs):
         if "caption" in kwargs:
