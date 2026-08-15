@@ -63,12 +63,14 @@ from pyrogram import enums
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from ShrutiMusic import app
 
-from config import styled_button, START_IMG_URL
+from config import styled_button
+
+REPO_VIDEO = "https://files.catbox.moe/x4x2e8.mp4"
 
 @app.on_message(filters.command(["repo", "source"]))
 async def send_repo(_, message: Message):
     await message.reply_video(
-        video=START_IMG_URL,
+        video=REPO_VIDEO,
         caption=(
            "👑 <b>˹ ᴘʀɪᴠᴀᴛᴇ sᴏᴜʀᴄᴇ ᴄᴏᴅᴇ ˼</b>\n\n"
            "<blockquote>"

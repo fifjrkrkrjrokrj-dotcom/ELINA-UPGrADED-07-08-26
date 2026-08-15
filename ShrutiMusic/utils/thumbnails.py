@@ -83,10 +83,10 @@ async def gen_thumb(videoid: str):
             
             # Load fonts
             try:
-                title_font = ImageFont.truetype(FONT_BOLD, 46)
-                subtitle_font = ImageFont.truetype(FONT_REGULAR, 22)
-                player_title_font = ImageFont.truetype(FONT_BOLD, 22)
-                player_sub_font = ImageFont.truetype(FONT_REGULAR, 15)
+                title_font = ImageFont.truetype(FONT_BOLD, 38)
+                subtitle_font = ImageFont.truetype(FONT_REGULAR, 20)
+                player_title_font = ImageFont.truetype(FONT_BOLD, 18)
+                player_sub_font = ImageFont.truetype(FONT_REGULAR, 13)
                 small_font = ImageFont.truetype(FONT_REGULAR, 16)
             except:
                 title_font = ImageFont.load_default()
@@ -132,12 +132,12 @@ async def gen_thumb(videoid: str):
             
             # 2. Draw Title & Subtitle (below the card, centered)
             clean_title = title.title()
-            if len(clean_title) > 32:
-                clean_title = clean_title[:29] + "..."
+            if len(clean_title) > 36:
+                clean_title = clean_title[:33] + "..."
                 
             title_w = get_text_width(clean_title, font=title_font)
             title_x = (CANVAS_W - title_w) // 2
-            title_y = 460
+            title_y = 465
             draw.text((title_x, title_y), clean_title, font=title_font, fill="white")
             
             # Subtitle
@@ -153,10 +153,10 @@ async def gen_thumb(videoid: str):
             
             # 3. Draw player bar contents (bottom overlay)
             player_title = clean_title
-            if len(player_title) > 20:
-                player_title = player_title[:17] + "..."
-            draw.text((285, 575), player_title, font=player_title_font, fill="white")
-            draw.text((285, 603), "ELINA MUSIC", font=player_sub_font, fill=(180, 180, 180))
+            if len(player_title) > 16:
+                player_title = player_title[:13] + "..."
+            draw.text((315, 575), player_title, font=player_title_font, fill="white")
+            draw.text((315, 603), "ELINA MUSIC", font=player_sub_font, fill=(180, 180, 180))
             
             # Progress bar lines
             bar_start_x = 490
