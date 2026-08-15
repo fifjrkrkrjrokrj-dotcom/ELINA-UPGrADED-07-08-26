@@ -16,10 +16,19 @@ from config import BANNED_USERS, PING_IMG_URL
 async def ping_com(client, message: Message, _):
     start = datetime.now()
 
-    response = await message.reply_video(
-        video=PING_IMG_URL,
-        caption=_["ping_1"].format(app.mention),
-    )
+    url = PING_IMG_URL
+    is_video = url.split("?")[0].lower().endswith((".mp4", ".mkv", ".webm", ".mov")) if url else False
+
+    if is_video:
+        response = await message.reply_video(
+            video=url,
+            caption=_["ping_1"].format(app.mention),
+        )
+    else:
+        response = await message.reply_photo(
+            photo=url,
+            caption=_["ping_1"].format(app.mention),
+        )
 
     pytgping = await Nand.ping()
     UP, CPU, RAM, DISK = await bot_sys_stats()
