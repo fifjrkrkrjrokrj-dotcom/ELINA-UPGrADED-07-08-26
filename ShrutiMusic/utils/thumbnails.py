@@ -73,79 +73,117 @@ async def gen_thumb(videoid: str):
         output = CACHE_DIR / f"{videoid}_final.png"
 
         def _draw_thumb():
+            # Open the base downloaded youtube thumbnail
             base = Image.open(thumb_path).convert("RGB")
-            bg = base.resize((CANVAS_W, CANVAS_H))
-            bg = bg.filter(ImageFilter.GaussianBlur(15))
-            bg = ImageEnhance.Brightness(bg).enhance(0.18)
-            canvas = bg.convert("RGBA")
-
-            overlay = Image.new("RGBA", (CANVAS_W, CANVAS_H), (25, 0, 0, 180))
-            canvas = Image.alpha_composite(canvas, overlay)
-
+            
+            # Open our template background image
+            bg = Image.open("ShrutiMusic/assets/elina_thumb_bg.jpg").convert("RGBA")
+            canvas = bg.copy()
             draw = ImageDraw.Draw(canvas)
-
-            box_x = 60
-            box_y = 33
-            box_w = 1160
-            box_h = 393
-
-            draw.rounded_rectangle(
-                (box_x, box_y, box_x + box_w, box_y + box_h),
-                radius=10,
-                fill=(255, 255, 255, 55),
-                outline=(255, 255, 255),
-                width=3
-            )
-
-            thumb = base.resize((633, 326))
-            thumb_x = 323
-            thumb_y = 43
-            canvas.paste(thumb, (thumb_x, thumb_y))
-
-            fade = Image.new("RGBA", (box_w, 116), (0, 0, 0, 0))
-            fd = ImageDraw.Draw(fade)
-            for y in range(116):
-                alpha = int((y / 116) * 255)
-                fd.line([(0, y), (box_w, y)], fill=(0, 0, 0, alpha))
-            canvas.paste(fade, (box_x, box_y + 277), fade)
-
-            c = (255, 255, 255)
-            # TOP LEFT
-            draw.line([(60, 33), (100, 33)], fill=c, width=3)
-            draw.line([(60, 33), (60, 73)], fill=c, width=3)
-            # TOP RIGHT
-            draw.line([(1220, 33), (1180, 33)], fill=c, width=3)
-            draw.line([(1220, 33), (1220, 73)], fill=c, width=3)
-            # BOTTOM LEFT
-            draw.line([(60, 426), (100, 426)], fill=c, width=3)
-            draw.line([(60, 426), (60, 386)], fill=c, width=3)
-            # BOTTOM RIGHT
-            draw.line([(1220, 426), (1180, 426)], fill=c, width=3)
-            draw.line([(1220, 426), (1220, 386)], fill=c, width=3)
-
+            
+            # Load fonts
             try:
-                medium_font = ImageFont.truetype(FONT_BOLD, 32)
-                small_font = ImageFont.truetype(FONT_REGULAR, 20)
+                title_font = ImageFont.truetype(FONT_BOLD, 46)
+                subtitle_font = ImageFont.truetype(FONT_REGULAR, 22)
+                player_title_font = ImageFont.truetype(FONT_BOLD, 22)
+                player_sub_font = ImageFont.truetype(FONT_REGULAR, 15)
+                small_font = ImageFont.truetype(FONT_REGULAR, 16)
             except:
-                medium_font = ImageFont.load_default()
+                title_font = ImageFont.load_default()
+                subtitle_font = ImageFont.load_default()
+                player_title_font = ImageFont.load_default()
+                player_sub_font = ImageFont.load_default()
                 small_font = ImageFont.load_default()
+                
+            # Helper to get text width
+            def get_text_width(text, font):
+                try:
+                    return draw.textlength(text, font=font)
+                except AttributeError:
+                    try:
+                        return draw.textsize(text, font=font)[0]
+                    except:
+                        return len(text) * 12
 
-            draw.text((983, 340), "ELINA MUSIC", font=medium_font, fill=(255, 0, 0))
-
-            wave_y = 580
-            for x in range(100, 1133, 8):
-                h = random.randint(10, 40)
-                draw.line([(x, wave_y - h // 2), (x, wave_y + h // 2)], fill=(255, 255, 255), width=3)
-
-            line_y = 630
-            draw.line([(100, line_y), (1150, line_y)], fill=(140, 140, 140), width=5)
-            draw.line([(100, line_y), (433, line_y)], fill=(255, 255, 255), width=6)
-            draw.ellipse((423, line_y - 8, 440, line_y + 8), fill="white")
-
-            draw.text((100, 646), "00:00", font=small_font, fill="white")
-            draw.text((1083, 646), duration, font=small_font, fill="white")
-
-            canvas.save(output, format="PNG", quality=90)
+            # 1. Overlay resized and rounded YouTube thumbnail in the center
+            # Center thumbnail size: 688 x 387 (16:9 ratio)
+            thumb_w, thumb_h = 688, 387
+            thumb = base.resize((thumb_w, thumb_h))
+            
+            # Create rounded corners mask
+            radius = 24
+            mask = Image.new('L', (thumb_w, thumb_h), 0)
+            mask_draw = ImageDraw.Draw(mask)
+            mask_draw.rounded_rectangle((0, 0, thumb_w, thumb_h), radius=radius, fill=255)
+            
+            # Paste the thumbnail onto canvas using mask
+            thumb_x = (CANVAS_W - thumb_w) // 2 # 296
+            thumb_y = 60
+            canvas.paste(thumb, (thumb_x, thumb_y), mask)
+            
+            # Draw hot pink glowing rounded border around the thumbnail
+            pink_color = (236, 40, 112, 255)
+            draw.rounded_rectangle(
+                (thumb_x - 3, thumb_y - 3, thumb_x + thumb_w + 3, thumb_y + thumb_h + 3),
+                radius=radius + 3,
+                outline=pink_color,
+                width=4
+            )
+            
+            # 2. Draw Title & Subtitle (below the card, centered)
+            clean_title = title.title()
+            if len(clean_title) > 32:
+                clean_title = clean_title[:29] + "..."
+                
+            title_w = get_text_width(clean_title, font=title_font)
+            title_x = (CANVAS_W - title_w) // 2
+            title_y = 460
+            draw.text((title_x, title_y), clean_title, font=title_font, fill="white")
+            
+            # Subtitle
+            channel = result.get("channel", {}).get("name", "YOUTUBE")
+            subtitle_text = f"{channel.upper()} • HD AUDIO"
+            if len(subtitle_text) > 40:
+                subtitle_text = subtitle_text[:37] + "..."
+                
+            sub_w = get_text_width(subtitle_text, font=subtitle_font)
+            sub_x = (CANVAS_W - sub_w) // 2
+            sub_y = 515
+            draw.text((sub_x, sub_y), subtitle_text, font=subtitle_font, fill=pink_color)
+            
+            # 3. Draw player bar contents (bottom overlay)
+            player_title = clean_title
+            if len(player_title) > 20:
+                player_title = player_title[:17] + "..."
+            draw.text((285, 575), player_title, font=player_title_font, fill="white")
+            draw.text((285, 603), "ELINA MUSIC", font=player_sub_font, fill=(180, 180, 180))
+            
+            # Progress bar lines
+            bar_start_x = 490
+            bar_end_x = 990
+            bar_y = 598
+            # Gray background line
+            draw.line([(bar_start_x, bar_y), (bar_end_x, bar_y)], fill=(80, 80, 80), width=4)
+            # Active pink progress line (random progress, e.g. 35%)
+            progress_pct = random.uniform(0.25, 0.55)
+            active_end_x = int(bar_start_x + (bar_end_x - bar_start_x) * progress_pct)
+            draw.line([(bar_start_x, bar_y), (active_end_x, bar_y)], fill=pink_color, width=5)
+            # Handle dot
+            draw.ellipse((active_end_x - 6, bar_y - 6, active_end_x + 6, bar_y + 6), fill="white")
+            
+            # Duration texts
+            draw.text((bar_start_x, 615), "00:00", font=small_font, fill=(180, 180, 180))
+            draw.text((bar_end_x - 45, 615), duration, font=small_font, fill=(180, 180, 180))
+            
+            # Dynamic Equalizer lines
+            eq_start_x = 1025
+            for i in range(5):
+                h = random.randint(10, 30)
+                line_x = eq_start_x + i * 8
+                draw.line([(line_x, bar_y - h // 2), (line_x, bar_y + h // 2)], fill=pink_color, width=3)
+                
+            # Save the final image
+            canvas.save(output, format="PNG", quality=95)
             try:
                 os.remove(thumb_path)
             except:
